@@ -1,11 +1,14 @@
+use askama::Template;
 use warp::Filter;
+
+mod index;
 
 #[tokio::main]
 async fn main() {
-    let hello = warp::path!("hello" / String)
-        .map(|name| format!("Hello, {}", name));
+    let index = warp::path!("index" / String).map(|name: String| {
+        let template = index::IndexTemplate { name: &name };
+        warp::reply::html(template.render().unwrap())
+    });
 
-    warp::serve(hello)
-        .run(([0, 0, 0, 0], 8000))
-        .await;
+    warp::serve(index).run(([127, 0, 0, 1], 3030)).await;
 }
